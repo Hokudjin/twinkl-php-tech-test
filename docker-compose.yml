@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  webserver:
+    container_name: TwinklTestServer
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./www/html:/var/www/html
+      - ./php:/usr/local/etc/php/conf.d
+      - ./docker/apache/sites-available:/etc/apache2/sites-available
+    ports:
+      - "8008:80"
+    env_file: .env
+    depends_on:
+      - mysql-db
+    environment:
+      - APACHE_RUN_USER=#1000
+      - APACHE_RUN_GROUP=#1000
+
+  mysql-db:
+    image: mysql:8.0
+    env_file: .env
+    ports:
+      - "33066:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql-db
+    ports:
+      - "8009:80"
+    env_file: .env
+
+volumes:
+  dbdata:
+    driver: local
